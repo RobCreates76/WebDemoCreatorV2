@@ -47,7 +47,11 @@ export function ResearchPanel() {
   const { business, niche, website, socials, profile, buildMode } = research;
 
   const modeLabel =
-    buildMode === "agent" ? "Ollama Cloud Agent" : "Template Engine";
+    buildMode === "agent"
+      ? profile?.agentModel
+        ? `AI Agent (${profile.agentModel})`
+        : "AI Agent"
+      : "Template Engine";
 
   return (
     <Card>
@@ -93,6 +97,39 @@ export function ResearchPanel() {
                     <p className="text-sm text-muted-foreground">{profile.researchSummary}</p>
                   </div>
                 </div>
+
+                {buildMode === "agent" && profile.nicheReasoning && (
+                  <div className="flex items-start gap-2">
+                    <Target className="h-4 w-4 shrink-0 text-primary mt-0.5" />
+                    <div>
+                      <p className="font-medium text-xs uppercase tracking-wide text-muted-foreground">
+                        Niche Analysis (AI)
+                      </p>
+                      <p className="text-sm text-muted-foreground">{profile.nicheReasoning}</p>
+                    </div>
+                  </div>
+                )}
+
+                {buildMode === "agent" && profile.websiteStrategy && (
+                  <div className="flex items-start gap-2">
+                    <Sparkles className="h-4 w-4 shrink-0 text-primary mt-0.5" />
+                    <div>
+                      <p className="font-medium text-xs uppercase tracking-wide text-muted-foreground">
+                        Website Strategy (AI)
+                      </p>
+                      <p className="text-sm text-muted-foreground">{profile.websiteStrategy}</p>
+                    </div>
+                  </div>
+                )}
+
+                {buildMode === "agent" && profile.competitiveAngle && (
+                  <div>
+                    <p className="font-medium text-xs uppercase tracking-wide text-muted-foreground mb-1">
+                      Competitive Angle
+                    </p>
+                    <p className="text-sm text-muted-foreground">{profile.competitiveAngle}</p>
+                  </div>
+                )}
 
                 <div className="flex flex-wrap gap-1.5">
                   <Badge variant="secondary">{TONE_LABELS[profile.tone] || profile.tone}</Badge>

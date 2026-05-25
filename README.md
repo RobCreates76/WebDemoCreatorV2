@@ -15,9 +15,25 @@ Premium client demo site generator for Zoom presentations. Paste a Google Maps b
 ```bash
 cd "Demo Builder V2"
 npm install
-npx playwright install chromium
 npm run dev
 ```
+
+`npm install` also installs the Playwright Chromium browser (required for Google Maps scraping).
+
+### AI Agent mode (Ollama Cloud)
+
+1. Click **Agent Settings** (top right)
+2. Choose **Ollama Cloud**, paste your API key from [ollama.com → Settings → API Keys](https://ollama.com/settings/keys)
+3. Pick a cloud model (e.g. `kimi-k2.6`)
+4. Switch build mode to **AI Agent** and run research
+
+### Troubleshooting
+
+| Symptom | Fix |
+|---------|-----|
+| `Playwright browser not installed` | Run `npx playwright install chromium` |
+| `Cannot find module .../parse5/...` (external drive) | Run `npm run fix:perms` then restart the dev server |
+| Generic `Server error (500)` | Stop all dev servers, run `npm run dev:clean`, check the terminal for the real error |
 
 Open [http://localhost:3000](http://localhost:3000)
 

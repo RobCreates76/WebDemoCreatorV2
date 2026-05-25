@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { renderSiteHtml } from "@/lib/generation/site-renderer";
 import type { SiteModel } from "@/lib/models/site-model";
 
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
 export async function POST(request: NextRequest) {
   try {
     const { site, editMode } = await request.json();

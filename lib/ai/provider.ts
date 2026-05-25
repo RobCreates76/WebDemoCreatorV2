@@ -312,6 +312,15 @@ export function isAgentConfigured(): boolean {
   return true;
 }
 
+export function getResolvedAgentInfo(): {
+  provider: AiProviderName;
+  model: string;
+} | null {
+  const resolved = resolveProvider();
+  if (!resolved) return null;
+  return { provider: resolved.provider, model: resolved.model };
+}
+
 export async function probeAgentConfig(input: {
   provider: AiProviderName;
   ollamaCloudUrl?: string;

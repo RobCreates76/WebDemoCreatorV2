@@ -8,110 +8,110 @@ interface CopyContext {
 }
 
 const PRIMARY_CTAS: Record<NicheType, string> = {
-  "home-services": "Get Free Estimate",
-  restaurant: "Reserve a Table",
-  "professional-services": "Schedule Consultation",
-  healthcare: "Book Appointment",
-  "beauty-wellness": "Book Now",
-  "retail-local": "Shop Collection",
-  "creative-media": "Start Your Project",
-  general: "Get In Touch",
+  "home-services": "Claim Your Free Estimate",
+  restaurant: "Reserve Your Table Now",
+  "professional-services": "Book Free Consultation",
+  healthcare: "Get Priority Appointment",
+  "beauty-wellness": "Book Your Transformation",
+  "retail-local": "Shop the Collection",
+  "creative-media": "Start Your Project Today",
+  general: "Get Started Now",
 };
 
 const SECONDARY_CTAS: Record<NicheType, string> = {
-  "home-services": "Call Now",
-  restaurant: "View Menu",
-  "professional-services": "Call Office",
-  healthcare: "Call Clinic",
-  "beauty-wellness": "View Services",
-  "retail-local": "Visit Store",
-  "creative-media": "View Our Work",
-  general: "Learn More",
+  "home-services": "Call Now — Same-Day Available",
+  restaurant: "See What's Cooking",
+  "professional-services": "Talk to an Expert",
+  healthcare: "Call for Same-Week Care",
+  "beauty-wellness": "View Services & Pricing",
+  "retail-local": "Visit Our Store",
+  "creative-media": "Watch Our Reel",
+  general: "See Why We're #1",
 };
 
 const HEADLINE_TEMPLATES: Record<NicheType, string[]> = {
   "home-services": [
-    "{city}'s Trusted {category} — Done Right the First Time",
-    "Same-Day {category} in {city} — Licensed & Insured",
-    "Professional {category} Services for {city} Homeowners",
+    "Stop Waiting Days for a Plumber — {city}'s Fastest {category}",
+    "Same-Day {category} in {city} — Fixed Right or We Make It Right",
+    "{city} Homeowners' #1 Call for {category} That Actually Shows Up",
   ],
   restaurant: [
-    "{name} — {city}'s Favorite {category}",
-    "Authentic Flavors, Unforgettable Evenings in {city}",
-    "Where {city} Comes Together Over Great Food",
+    "{city}'s Most Talked-About {category} — Tables Fill Fast",
+    "The {category} Experience {city} Can't Stop Raving About",
+    "Real Flavors. Real Reviews. {name} Delivers Every Time.",
   ],
   "professional-services": [
-    "Trusted {category} Counsel for {city} Clients",
-    "Strategic {category} Expertise You Can Count On",
-    "{city}'s Premier {category} — Results That Matter",
+    "When It Matters Most, {city} Trusts {name}",
+    "Don't Gamble on {category} — Get {city}'s Proven Expert",
+    "{city}'s Go-To {category} for Results You Can Count On",
   ],
   healthcare: [
-    "Compassionate {category} Care in {city}",
-    "Your Health, Our Priority — {city} {category}",
-    "Modern {category} Services for {city} Families",
+    "Finally — {category} Care in {city} That Actually Listens",
+    "{city}'s Trusted {category} — Same-Week Appointments Available",
+    "Your Family Deserves Better Care. Start at {name}.",
   ],
   "beauty-wellness": [
-    "Look & Feel Your Best in {city}",
-    "{city}'s Premier {category} Experience",
-    "Elevate Your Routine at {name}",
+    "Walk Out Looking Like a Million Bucks — {city}'s Top {category}",
+    "The {category} Appointment {city} Books Weeks Ahead For",
+    "Your Best Look Starts Here — {name}, {city}",
   ],
   "retail-local": [
-    "Discover {name} — {city}'s Local Favorite",
-    "Curated {category} for {city}",
-    "Quality You Can See at {name}",
+    "Stop Settling — {name} Is Why {city} Shops Local",
+    "{city}'s Hidden Gem for {category} That Big Box Can't Match",
+    "Quality You Feel. Service You Remember. Shop {name}.",
   ],
   "creative-media": [
-    "{city}'s Story-Driven {category} — Built to Captivate",
-    "Cinematic {category} for Brands & Businesses in {city}",
-    "{name} — Where Vision Meets Production Excellence",
+    "Video That Actually Converts — {city}'s {category} Pros",
+    "Stop Posting Content That Gets Ignored — {name} Creates What Works",
+    "{city} Brands Choose {name} When Mediocre Won't Cut It",
   ],
   general: [
-    "{name} — Trusted {category} in {city}",
-    "Professional {category} Services for {city}",
-    "{city}'s Go-To {category} — {rating}★ Rated",
+    "{city}'s {rating}★-Rated {category} — See Why {audience} Switch",
+    "Tired of Mediocre {category}? {name} Is the Upgrade.",
+    "{city}'s Most Trusted {category} — {reviews}+ Reviews Don't Lie",
   ],
 };
 
 const SUBHEAD_TEMPLATES: Record<NicheType, string[]> = {
   "home-services": [
-    "Stop waiting days for a callback. {rating}★ from {reviews}+ {city} homeowners.",
-    "Licensed, insured, and locally owned. Serving {city} with pride since day one.",
-    "Fast response, fair pricing, and workmanship you can trust.",
+    "{rating}★ from {reviews}+ {city} homeowners who stopped calling anyone else. Free estimates. Same-day emergency response.",
+    "Licensed, insured, upfront pricing — no runaround, no surprises. The {category} team {city} recommends first.",
+    "While others ghost you, we show up on time and fix it right. That's why we're {city}'s top-rated.",
   ],
   restaurant: [
-    "Rated {rating}★ by {reviews}+ guests. Fresh ingredients, warm hospitality.",
-    "From our kitchen to your table — an experience worth sharing.",
-    "Reserve your table and taste why {city} keeps coming back.",
+    "{rating}★ from {reviews}+ guests. Fresh ingredients, unforgettable nights — reserve before your slot's gone.",
+    "The table everyone in {city} is talking about. Book now and taste why the waitlist exists.",
+    "From first bite to last call — an experience worth every star. See why {reviews}+ reviews agree.",
   ],
   "professional-services": [
-    "Trusted by {city} clients. Clear advice, proven results.",
-    "Personalized service with the expertise your situation demands.",
-    "{rating}★ rated. Confidential consultations available.",
+    "{rating}★ rated. Free consultation. The {category} partner {city} clients trust when stakes are high.",
+    "Clear advice. Real results. No runaround — just the expert guidance you needed yesterday.",
+    "When {city} {audience} need answers, they call us first. Confidential. Proven. On your side.",
   ],
   healthcare: [
-    "Patient-first care with modern facilities and experienced providers.",
-    "Accepting new patients in {city}. Same-week appointments available.",
-    "Rated {rating}★ by {reviews}+ patients who trust us with their health.",
+    "{rating}★ from {reviews}+ patients. Same-week appointments. Providers who actually listen.",
+    "Stop dreading doctor visits. Modern care, zero judgment, real answers — accepting new patients now.",
+    "Your health can't wait. Neither do we — book today and see why {city} families switch to us.",
   ],
   "beauty-wellness": [
-    "Where self-care meets expertise. Book your transformation today.",
-    "Rated {rating}★ by {reviews}+ clients in {city}.",
-    "Premium services tailored to you — because you deserve the best.",
+    "{rating}★ from {reviews}+ clients who finally found their go-to. Book your transformation before slots fill.",
+    "Premium products. Expert hands. The {category} experience {city} books weeks ahead for.",
+    "You deserve to look as good as you feel. {city}'s most-reviewed {category} — your spot is waiting.",
   ],
   "retail-local": [
-    "Locally owned and loved by {city}. Quality products, personal service.",
-    "Rated {rating}★ by {reviews}+ customers.",
-    "Visit us and discover why {city} shops local.",
+    "{rating}★ from {reviews}+ {city} shoppers. Locally owned, personally curated — everything big box stores can't offer.",
+    "Real products. Real people. Real reasons {city} drives past the chains to shop here.",
+    "Visit once and you'll get it — this is why {city} shops local at {name}.",
   ],
   "creative-media": [
-    "From concept to final cut — {rating}★ trusted by {reviews}+ {audience} in {city}.",
-    "Story-driven visuals that elevate brands, events, and campaigns.",
-    "Award-worthy production with a collaborative process you'll love.",
+    "{rating}★ trusted by {reviews}+ {audience}. Content that stops the scroll and drives the sale.",
+    "From concept to viral-ready cut — production that makes your competitors look amateur.",
+    "Your brand deserves better than stock footage. {city}'s {category} team that delivers results.",
   ],
   general: [
-    "Rated {rating}★ by {reviews}+ {audience} in {city}. Quality service you can trust.",
-    "Professional, reliable, and locally rooted in {city}.",
-    "Serving {city} with expertise and care — see why {audience} choose us.",
+    "{rating}★ from {reviews}+ {audience} in {city}. The upgrade from 'good enough' — see the difference yourself.",
+    "Professional, fast, and locally trusted. {city}'s {category} choice when quality actually matters.",
+    "Stop settling. {reviews}+ reviews prove why {audience} in {city} choose {name} every time.",
   ],
 };
 
@@ -260,6 +260,137 @@ const FAQ_TEMPLATES: Record<NicheType, { question: string; answer: string }[]> =
   ],
 };
 
+const HERO_EYEBROW_TEMPLATES: Record<NicheType, string[]> = {
+  "home-services": ["{city}'s Top-Rated {category}", "#{rating}★ Emergency {category}", "Licensed · Insured · Local"],
+  restaurant: ["{city}'s Must-Try {category}", "{rating}★ · {reviews}+ Happy Guests", "Reservations Recommended"],
+  "professional-services": ["{city}'s Trusted {category} Advisor", "Free Consultation Available", "{rating}★ Client Rated"],
+  healthcare: ["Accepting New Patients", "{city}'s {rating}★ {category}", "Same-Week Appointments"],
+  "beauty-wellness": ["{city}'s Premier {category}", "{rating}★ · Book Weeks Ahead", "Transformations That Last"],
+  "retail-local": ["{city}'s Local Favorite", "{rating}★ · Shop Local", "Curated · Personal · Trusted"],
+  "creative-media": ["{city}'s Production Powerhouse", "{rating}★ · Results-Driven", "Cinematic Quality"],
+  general: ["{city}'s {rating}★ {category}", "Trusted by {reviews}+ {audience}", "The Obvious Choice"],
+};
+
+const OFFER_HOOK_TEMPLATES: Record<NicheType, string[]> = {
+  "home-services": [
+    "Free Estimates · Same-Day Service · Licensed & Insured · Satisfaction Guaranteed",
+    "No Hidden Fees · Upfront Pricing · Emergency Response · {rating}★ Rated",
+  ],
+  restaurant: [
+    "Fresh Daily · {rating}★ Rated · Reservations Open · Private Events Available",
+    "Locally Sourced · Walk-Ins Welcome · Catering Available · {reviews}+ Reviews",
+  ],
+  "professional-services": [
+    "Free Consultation · Confidential · Proven Results · {rating}★ Rated",
+    "No Obligation · Clear Pricing · Expert Guidance · {city} Trusted",
+  ],
+  healthcare: [
+    "Accepting Patients · Most Insurance · Same-Week Visits · {rating}★ Care",
+    "New Patients Welcome · Modern Facility · Compassionate Team · Book Online",
+  ],
+  "beauty-wellness": [
+    "Expert Stylists · Premium Products · {rating}★ Rated · Book Online",
+    "Complimentary Consult · Luxury Experience · {reviews}+ Happy Clients",
+  ],
+  "retail-local": [
+    "Locally Owned · Curated Selection · Personal Service · {rating}★ Rated",
+    "Special Orders · Gift Services · Local Delivery · Shop {city} Local",
+  ],
+  "creative-media": [
+    "Full Production · Fast Turnaround · {rating}★ Rated · Free Discovery Call",
+    "Cinematic Quality · Strategic Storytelling · Results That Convert",
+  ],
+  general: [
+    "Free Consultation · {rating}★ Rated · Locally Trusted · Fast Response",
+    "No Obligation · Proven Results · {reviews}+ Reviews · {city} Proud",
+  ],
+};
+
+const MARQUEE_TEMPLATES: Record<NicheType, string[]> = {
+  "home-services": [
+    "Free Estimates",
+    "Same-Day Response",
+    "Licensed & Insured",
+    "{rating}★ Rated",
+    "Satisfaction Guaranteed",
+    "Serving {city}",
+  ],
+  restaurant: [
+    "Fresh Daily",
+    "{rating}★ Rated",
+    "Reserve Your Table",
+    "Private Events",
+    "Catering Available",
+    "{city} Favorite",
+  ],
+  "professional-services": [
+    "Free Consultation",
+    "Confidential",
+    "{rating}★ Rated",
+    "Proven Results",
+    "Expert Guidance",
+    "Trusted in {city}",
+  ],
+  healthcare: [
+    "Accepting Patients",
+    "Same-Week Appointments",
+    "{rating}★ Rated",
+    "Most Insurance Accepted",
+    "Compassionate Care",
+    "Serving {city}",
+  ],
+  "beauty-wellness": [
+    "Book Online",
+    "Expert Team",
+    "{rating}★ Rated",
+    "Premium Products",
+    "Transformations",
+    "{city}'s Best",
+  ],
+  "retail-local": [
+    "Shop Local",
+    "Curated Selection",
+    "{rating}★ Rated",
+    "Personal Service",
+    "Special Orders",
+    "Serving {city}",
+  ],
+  "creative-media": [
+    "Cinematic Quality",
+    "Full Production",
+    "{rating}★ Rated",
+    "Fast Turnaround",
+    "Results-Driven",
+    "Based in {city}",
+  ],
+  general: [
+    "Free Consultation",
+    "{rating}★ Rated",
+    "Locally Trusted",
+    "{reviews}+ Reviews",
+    "Fast Response",
+    "Serving {city}",
+  ],
+};
+
+const HIGHLIGHT_KEYWORDS = [
+  "Same-Day",
+  "Free",
+  "#1",
+  "Top-Rated",
+  "Stop",
+  "Finally",
+  "Fixed",
+  "Trusted",
+  "Premier",
+  "Best",
+  "Fastest",
+  "Most",
+  "Actually",
+  "Zero",
+  "Real",
+];
+
 function fillTemplate(template: string, ctx: CopyContext): string {
   const { business, city, niche } = ctx;
   const audience = getAudienceLabel(niche);
@@ -270,6 +401,40 @@ function fillTemplate(template: string, ctx: CopyContext): string {
     .replace(/\{audience\}/g, audience)
     .replace(/\{rating\}/g, business.rating ? business.rating.toFixed(1) : "5.0")
     .replace(/\{reviews\}/g, String(business.reviewCount || "100"));
+}
+
+export function generateHeroEyebrow(ctx: CopyContext): string {
+  const templates = HERO_EYEBROW_TEMPLATES[ctx.niche];
+  return fillTemplate(templates[0], ctx);
+}
+
+export function generateOfferHook(ctx: CopyContext): string {
+  const templates = OFFER_HOOK_TEMPLATES[ctx.niche];
+  return fillTemplate(templates[0], ctx);
+}
+
+export function generateMarqueeItems(ctx: CopyContext): string[] {
+  return MARQUEE_TEMPLATES[ctx.niche].map((t) => fillTemplate(t, ctx));
+}
+
+export function generateStats(ctx: CopyContext): { value: string; label: string }[] {
+  const { business, city } = ctx;
+  return [
+    { value: (business.rating || 4.9).toFixed(1), label: "Star Rating" },
+    { value: `${business.reviewCount || 100}+`, label: "Happy Clients" },
+    { value: city || "Local", label: "Community Served" },
+  ];
+}
+
+export function generateHeroHighlight(headline: string): string | undefined {
+  for (const kw of HIGHLIGHT_KEYWORDS) {
+    if (headline.includes(kw)) return kw;
+  }
+  const words = headline.split(/\s+/);
+  if (words.length >= 3) {
+    return words.slice(0, 2).join(" ");
+  }
+  return undefined;
 }
 
 export function generateHeadline(ctx: CopyContext): string {
@@ -328,7 +493,7 @@ export function generateMetaTitle(ctx: CopyContext): string {
 
 export function generateMetaDescription(ctx: CopyContext): string {
   const rating = ctx.business.rating ? `${ctx.business.rating.toFixed(1)}★` : "Top-rated";
-  return `${ctx.business.name} — ${rating} ${ctx.business.category.toLowerCase()} in ${ctx.city}. ${generatePrimaryCta(ctx.niche)} today.`;
+  return `${rating} ${ctx.business.category} in ${ctx.city}. ${generatePrimaryCta(ctx.niche)} — ${ctx.business.reviewCount || 100}+ reviews can't be wrong.`;
 }
 
 export type { CopyContext };

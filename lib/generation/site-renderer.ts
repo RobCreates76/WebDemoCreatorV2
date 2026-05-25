@@ -54,13 +54,13 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 `;
 
-import fs from "fs";
-import path from "path";
 import type { SiteModel } from "@/lib/models/site-model";
 import {
   getGoogleFontsUrl,
   tokensToCssVars,
 } from "@/lib/generation/design-tokens";
+import { getBaseCss } from "@/lib/generation/template-css";
+import { renderPremiumSiteHtml, renderPremiumSiteCss, renderPremiumSiteJs } from "@/lib/generation/premium-renderer";
 
 function escapeHtml(text: string): string {
   return text
@@ -100,15 +100,17 @@ function editableImg(
   return `<img src="${escapeHtml(src)}" alt="${escapeHtml(alt)}" class="${className}" data-editable-image data-section="${section}" data-field="${field}" loading="lazy" />`;
 }
 
-function getBaseCss(): string {
-  const cssPath = path.join(process.cwd(), "templates", "_shared", "base.css");
-  return fs.readFileSync(cssPath, "utf-8");
-}
-
 export function renderSiteHtml(
   site: SiteModel,
   options: { editMode?: boolean; inlineStyles?: boolean } = {}
 ): string {
+  const resolvedSite =
+    site.renderTier === "premium" ? site : { ...site, renderTier: "premium" as const };
+
+  if (resolvedSite.renderTier === "premium") {
+    return renderPremiumSiteHtml(resolvedSite, options);
+  }
+
   const editMode = options.editMode ?? false;
   const fontsUrl = getGoogleFontsUrl(site.tokens);
   const cssVars = tokensToCssVars(site.tokens);
@@ -333,10 +335,18 @@ export function renderSiteHtml(
 }
 
 export function renderSiteCss(site: SiteModel): string {
+  const tier = site.renderTier ?? "premium";
+  if (tier === "premium") {
+    return renderPremiumSiteCss(site);
+  }
   const cssVars = tokensToCssVars(site.tokens);
   return `:root { ${cssVars} }\n${getBaseCss()}`;
 }
 
-export function renderSiteJs(): string {
+export function renderSiteJs(site?: SiteModel): string {
+  const tier = site?.renderTier ?? "premium";
+  if (tier === "premium") {
+    return renderPremiumSiteJs();
+  }
   return MAIN_JS;
 }

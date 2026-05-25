@@ -91,6 +91,33 @@ function isLikelyService(text: string): boolean {
   return true;
 }
 
+function extractServicesFromReviews(reviews: BusinessData["reviews"]): string[] {
+  const services = new Set<string>();
+  const patterns = [
+    /(?:great|excellent|amazing|best|professional)\s+(\w[\w\s-]{2,30}?)(?:\.|,|!|$)/gi,
+    /(?:did|fixed|installed|repaired|cleaned|cut|styled|built)\s+(?:my|our|the)?\s*(\w[\w\s-]{2,30}?)(?:\.|,|!|$)/gi,
+  ];
+
+  for (const review of reviews) {
+    for (const pattern of patterns) {
+      let match: RegExpExecArray | null;
+      while ((match = pattern.exec(review.text)) !== null) {
+        const candidate = match[1]?.trim();
+        if (candidate && isLikelyService(candidate)) {
+          services.add(
+            candidate
+              .split(" ")
+              .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+              .join(" ")
+          );
+        }
+      }
+    }
+  }
+
+  return Array.from(services).slice(0, 4);
+}
+
 function extractServicesFromHeadings(
   business: BusinessData,
   website?: WebsiteData
@@ -114,6 +141,10 @@ function extractServicesFromHeadings(
 
   for (const attr of business.attributes) {
     if (attr.length > 3 && attr.length < 50) services.add(attr);
+  }
+
+  for (const svc of extractServicesFromReviews(business.reviews)) {
+    services.add(svc);
   }
 
   const categoryParts = business.category

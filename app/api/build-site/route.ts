@@ -5,7 +5,7 @@ import type { BuildMode, NicheType, ResearchData } from "@/lib/models/site-model
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
-export const maxDuration = 120;
+export const maxDuration = 300;
 
 export async function POST(request: NextRequest) {
   try {
@@ -25,9 +25,22 @@ export async function POST(request: NextRequest) {
       mode
     );
 
-    const site = buildSiteModel(enriched);
+    const effectiveNiche =
+      mode === "agent" && enriched.profile?.niche
+        ? enriched.profile.niche
+        : (niche as NicheType);
 
-    return NextResponse.json({ site, research: enriched, buildMode: mode });
+    const site = buildSiteModel({
+      ...enriched,
+      niche: effectiveNiche,
+      buildMode: mode,
+    });
+
+    return NextResponse.json({
+      site,
+      research: { ...enriched, niche: effectiveNiche, buildMode: mode },
+      buildMode: mode,
+    });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Build failed";
     return NextResponse.json({ error: message }, { status: 500 });

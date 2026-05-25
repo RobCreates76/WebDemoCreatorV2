@@ -122,7 +122,7 @@ export function InputForm() {
           {isLoading ? (
             <>
               <Loader2 className="h-4 w-4 animate-spin" />
-              {buildMode === "agent" ? "Agent researching..." : "Researching..."}
+              {buildMode === "agent" ? "AI researching & building..." : "Researching..."}
             </>
           ) : buildMode === "agent" ? (
             <>

@@ -122,6 +122,19 @@ export interface BusinessProfile {
   galleryImages: string[];
   researchSummary: string;
   reviewThemes: string[];
+  /** Set when profile was produced by the AI agent */
+  generatedBy?: "agent" | "template";
+  agentModel?: string;
+  nicheReasoning?: string;
+  websiteStrategy?: string;
+  competitiveAngle?: string;
+  metaTitle?: string;
+  metaDescription?: string;
+  heroEyebrow?: string;
+  heroHighlight?: string;
+  offerHook?: string;
+  stats?: { value: string; label: string }[];
+  marqueeItems?: string[];
 }
 
 export interface ResearchData {
@@ -211,11 +224,23 @@ export interface SiteSection {
   data: Record<string, unknown>;
 }
 
+export type RenderTier = "standard" | "premium";
+
+export interface PremiumFeatures {
+  heroEyebrow?: string;
+  heroHighlight?: string;
+  offerHook?: string;
+  stats: { value: string; label: string }[];
+  marqueeItems: string[];
+}
+
 export interface SiteModel {
   id: string;
   slug: string;
   businessName: string;
   niche: NicheType;
+  renderTier?: RenderTier;
+  premium?: PremiumFeatures;
   tokens: DesignTokens;
   meta: {
     title: string;

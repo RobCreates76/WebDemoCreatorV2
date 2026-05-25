@@ -1,5 +1,6 @@
 import * as cheerio from "cheerio";
 import type { WebsiteData } from "@/lib/models/site-model";
+import { isLowQualityImageUrl, normalizeImageUrl } from "@/lib/media/image-curation";
 
 function normalizeUrl(url: string): string {
   const trimmed = url.trim();
@@ -43,10 +44,42 @@ export async function scrapeWebsite(url: string): Promise<WebsiteData> {
   const html = await res.text();
   const $ = cheerio.load(html);
 
+  let schemaDescription: string | undefined;
+  let schemaServices: string[] = [];
+  $('script[type="application/ld+json"]').each((_, el) => {
+    try {
+      const raw = $(el).html();
+      if (!raw) return;
+      const parsed = JSON.parse(raw) as Record<string, unknown>;
+      const nodes = Array.isArray(parsed["@graph"])
+        ? (parsed["@graph"] as Record<string, unknown>[])
+        : [parsed];
+
+      for (const node of nodes) {
+        const type = String(node["@type"] || "");
+        if (!/LocalBusiness|Organization|Store|Restaurant|ProfessionalService/i.test(type)) {
+          continue;
+        }
+        if (!schemaDescription && typeof node.description === "string") {
+          schemaDescription = node.description.trim();
+        }
+        const offers = node.hasOfferCatalog as { itemListElement?: { name?: string }[] } | undefined;
+        if (offers?.itemListElement) {
+          for (const item of offers.itemListElement) {
+            if (item.name) schemaServices.push(item.name.trim());
+          }
+        }
+      }
+    } catch {
+      /* ignore invalid JSON-LD */
+    }
+  });
+
   const title = $("title").first().text().trim() || undefined;
   const description =
     $('meta[name="description"]').attr("content")?.trim() ||
     $('meta[property="og:description"]').attr("content")?.trim() ||
+    schemaDescription ||
     undefined;
 
   const h1 = $("h1").first().text().trim() || undefined;
@@ -88,14 +121,34 @@ export async function scrapeWebsite(url: string): Promise<WebsiteData> {
   (bodyText.match(emailRegex) || []).forEach((e) => emails.add(e));
 
   const images: string[] = [];
+  const addImage = (src: string | undefined, priority = false) => {
+    if (!src || src.includes("data:") || isLowQualityImageUrl(src)) return;
+    try {
+      const href = normalizeImageUrl(new URL(src, normalized).href);
+      if (priority) images.unshift(href);
+      else if (!images.includes(href)) images.push(href);
+    } catch {
+      /* skip invalid */
+    }
+  };
+
+  addImage($('meta[property="og:image"]').attr("content"), true);
+  addImage($('meta[name="twitter:image"]').attr("content"), true);
+  addImage($('link[rel="image_src"]').attr("href"), true);
+
   $("img[src]").each((_, el) => {
+    if (images.length >= 24) return;
     const src = $(el).attr("src");
-    if (src && !src.includes("data:") && images.length < 20) {
-      try {
-        images.push(new URL(src, normalized).href);
-      } catch {
-        /* skip invalid */
-      }
+    const srcset = $(el).attr("srcset");
+    if (srcset) {
+      const largest = srcset
+        .split(",")
+        .map((part) => part.trim().split(/\s+/)[0])
+        .filter(Boolean)
+        .pop();
+      addImage(largest || src);
+    } else {
+      addImage(src);
     }
   });
 
@@ -143,7 +196,9 @@ export async function scrapeWebsite(url: string): Promise<WebsiteData> {
     description,
     h1,
     headings,
-    serviceHeadings: Array.from(new Set(serviceHeadings)).slice(0, 12),
+    serviceHeadings: Array.from(
+      new Set([...serviceHeadings, ...schemaServices])
+    ).slice(0, 12),
     navLinks: navLinks.slice(0, 15),
     bodySnippet,
     phoneNumbers: Array.from(phoneNumbers),

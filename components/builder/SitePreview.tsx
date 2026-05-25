@@ -23,6 +23,17 @@ export function SitePreview() {
         body: JSON.stringify({ site, editMode: manualControl }),
       });
       const text = await res.text();
+      if (!res.ok) {
+        let message = "Preview failed to load. Stop the dev server and run: npm run dev:clean";
+        try {
+          const data = JSON.parse(text) as { error?: string };
+          if (data.error) message = data.error;
+        } catch {
+          /* use default message */
+        }
+        setHtml(`<p style="font-family:system-ui;padding:2rem;color:#b91c1c">${message}</p>`);
+        return;
+      }
       setHtml(text);
     } catch {
       setHtml("<p>Preview failed to load</p>");

@@ -105,7 +105,8 @@ export const NICHE_PRESETS: Record<NicheType, NicheTokenPreset> = {
 
 export function buildDesignTokens(
   niche: NicheType,
-  brandColors?: string[]
+  brandColors?: string[],
+  premium = false
 ): DesignTokens {
   const preset = NICHE_PRESETS[niche];
   let primary = preset.primary;
@@ -125,9 +126,16 @@ export function buildDesignTokens(
     ...preset,
     primary,
     accent,
-    radius: "0.5rem",
+    radius: premium ? "1rem" : "0.5rem",
     niche,
   };
+}
+
+export function buildPremiumDesignTokens(
+  niche: NicheType,
+  brandColors?: string[]
+): DesignTokens {
+  return buildDesignTokens(niche, brandColors, true);
 }
 
 export function tokensToCssVars(tokens: DesignTokens): string {

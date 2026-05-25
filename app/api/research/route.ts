@@ -11,7 +11,7 @@ import type { BuildMode, NicheType, ResearchData } from "@/lib/models/site-model
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
-export const maxDuration = 120;
+export const maxDuration = 300;
 
 export async function POST(request: NextRequest) {
   try {
@@ -59,6 +59,27 @@ export async function POST(request: NextRequest) {
     };
 
     research = await enrichResearchWithMode(research, buildMode);
+    research.buildMode = buildMode;
+
+    const effectiveNiche =
+      buildMode === "agent" && research.profile?.niche
+        ? research.profile.niche
+        : niche;
+
+    if (buildMode === "agent" && research.profile) {
+      research.niche = effectiveNiche;
+      if (research.nicheDetection) {
+        research.nicheDetection = {
+          ...research.nicheDetection,
+          niche: effectiveNiche,
+          reason: research.profile.nicheReasoning
+            ? `AI Agent: ${research.profile.nicheReasoning}`
+            : research.nicheDetection.reason,
+          needsConfirmation: false,
+          confidence: 95,
+        };
+      }
+    }
 
     const findings = runConversionAudit(website, business);
     const audit = scoreAudit(findings);
@@ -78,7 +99,7 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    const site = buildSiteModel({ ...research, niche });
+    const site = buildSiteModel({ ...research, niche: effectiveNiche, buildMode });
 
     return NextResponse.json({
       research,

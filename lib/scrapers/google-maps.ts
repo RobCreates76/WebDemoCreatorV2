@@ -1,6 +1,7 @@
 import type { BusinessData, BusinessHours, BusinessReview } from "@/lib/models/site-model";
 import { extractCityFromAddress } from "@/lib/utils";
 import { withTimeout } from "@/lib/api-client";
+import { upgradePhotoList } from "@/lib/media/image-curation";
 import {
   extractPlaceNameFromUrl,
   isGoogleMapsUrl,
@@ -204,7 +205,7 @@ async function scrapeWithPlaywright(resolvedUrl: string): Promise<BusinessData> 
         rating: parseRating(data.ratingText),
         reviewCount: parseReviewCount(data.reviewCountText),
         reviews: data.reviews as BusinessReview[],
-        photos: data.photos,
+        photos: upgradePhotoList(data.photos),
         description: data.description || undefined,
         attributes: data.attributes,
         mapsUrl: resolvedUrl,
@@ -217,14 +218,15 @@ async function scrapeWithPlaywright(resolvedUrl: string): Promise<BusinessData> 
           if (phoneMatch) result.phone = normalizePhone(phoneMatch[0]);
         }
         if (result.photos.length === 0) {
-          result.photos = await page.$$eval(
+          const rawPhotos = await page.$$eval(
             "img[src*='googleusercontent']",
             (imgs) =>
               imgs
                 .map((img) => (img as HTMLImageElement).src)
                 .filter((src) => src.includes("="))
-                .slice(0, 8)
+                .slice(0, 12)
           );
+          result.photos = upgradePhotoList(rawPhotos);
         }
       }
 

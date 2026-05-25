@@ -1,6 +1,6 @@
 import { randomUUID } from "crypto";
 import type { BusinessProfile, ResearchData, SiteModel } from "@/lib/models/site-model";
-import { buildDesignTokens } from "./design-tokens";
+import { buildPremiumDesignTokens } from "./design-tokens";
 import { detectNiche } from "./niche-detector";
 import {
   generateBadges,
@@ -9,6 +9,7 @@ import {
   type CopyContext,
 } from "./copy-engine";
 import { buildBusinessProfile } from "@/lib/research/business-profiler";
+import { curateSiteImages } from "@/lib/media/image-curation";
 import { slugify } from "@/lib/utils";
 
 function profileOrBuild(research: ResearchData): BusinessProfile {
@@ -16,12 +17,14 @@ function profileOrBuild(research: ResearchData): BusinessProfile {
 }
 
 export function buildSiteModel(research: ResearchData): SiteModel {
+  const profile = profileOrBuild(research);
+  const isAgent = research.buildMode === "agent" || profile.generatedBy === "agent";
   const niche =
+    (isAgent && profile.niche) ||
     research.niche ||
     detectNiche(research.business.category, research.business.name);
-  const profile = profileOrBuild({ ...research, niche });
   const brandColors = research.website?.colors;
-  const tokens = buildDesignTokens(niche, brandColors);
+  const tokens = buildPremiumDesignTokens(niche, brandColors);
 
   const ctx: CopyContext = {
     business: research.business,
@@ -35,22 +38,17 @@ export function buildSiteModel(research: ResearchData): SiteModel {
     "(555) 000-0000";
   const phoneHref = `tel:${phone.replace(/\D/g, "")}`;
 
-  const heroImage =
-    research.business.photos[0] ||
-    research.website?.images[0] ||
-    profile.heroImage;
+  const curated = curateSiteImages(research.business, research.website, {
+    businessName: research.business.name,
+    category: research.business.category,
+    niche,
+    keywords: profile.keywords,
+    stockHero: profile.heroImage,
+    stockGallery: profile.galleryImages,
+  });
 
-  const galleryImages = [
-    ...research.business.photos,
-    ...(research.website?.images.slice(0, 4) || []),
-    ...profile.galleryImages,
-  ]
-    .filter((img, i, arr) => arr.indexOf(img) === i)
-    .slice(0, 8);
-
-  if (galleryImages.length === 0) {
-    galleryImages.push(heroImage);
-  }
+  const heroImage = curated.hero;
+  const galleryImages = curated.gallery;
 
   const testimonials =
     research.business.reviews.length > 0
@@ -79,10 +77,34 @@ export function buildSiteModel(research: ResearchData): SiteModel {
     slug,
     businessName: research.business.name,
     niche,
+    renderTier: "premium",
+    premium: {
+      heroEyebrow:
+        profile.heroEyebrow ||
+        `${research.business.city}'s Trusted ${profile.industryLabel.split("·")[0].trim()}`,
+      heroHighlight: profile.heroHighlight,
+      offerHook:
+        profile.offerHook ||
+        profile.trustBadges.slice(0, 3).join(" · "),
+      stats: profile.stats?.length
+        ? profile.stats
+        : [
+            { value: `${(research.business.rating || 4.9).toFixed(1)}`, label: "Star Rating" },
+            { value: `${research.business.reviewCount || 100}+`, label: "Reviews" },
+            { value: research.business.city || "Local", label: "Community" },
+          ],
+      marqueeItems: profile.marqueeItems?.length
+        ? profile.marqueeItems
+        : profile.trustBadges,
+    },
     tokens,
     meta: {
-      title: generateMetaTitle(ctx),
-      description: generateMetaDescription(ctx),
+      title: isAgent && profile.metaTitle
+        ? profile.metaTitle
+        : generateMetaTitle(ctx),
+      description: isAgent && profile.metaDescription
+        ? profile.metaDescription
+        : generateMetaDescription(ctx),
     },
     header: {
       logoText: research.business.name,
@@ -111,9 +133,12 @@ export function buildSiteModel(research: ResearchData): SiteModel {
     socialProof: {
       rating: research.business.rating || 4.9,
       reviewCount: research.business.reviewCount || 100,
-      badges: profile.trustBadges.length > 0
-        ? profile.trustBadges
-        : generateBadges(research.business, niche),
+      badges:
+        profile.trustBadges.length > 0
+          ? profile.trustBadges
+          : isAgent
+            ? profile.trustBadges
+            : generateBadges(research.business, niche),
     },
     services: {
       headline: profile.sectionHeadlines.services,

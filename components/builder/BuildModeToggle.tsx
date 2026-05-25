@@ -52,7 +52,7 @@ export function BuildModeToggle({
           <Sparkles className="h-4 w-4 text-muted-foreground pointer-events-none" />
           <span className="text-sm font-medium pointer-events-none">AI Agent</span>
           <span className="text-xs text-muted-foreground leading-snug pointer-events-none">
-            Ollama Cloud researches the niche & writes custom copy.
+            Premium design + conversion copy powered by your AI model. Takes ~1–2 min.
           </span>
         </button>
       </div>
@@ -60,7 +60,7 @@ export function BuildModeToggle({
       {value === "agent" && !agentAvailable && (
         <div className="flex flex-col gap-2">
           <p className="text-xs text-amber-600 dark:text-amber-400">
-            Configure your Ollama Cloud API key and model to enable agent mode.
+            Configure your AI provider API key and model in Agent Settings.
           </p>
           <Button
             type="button"

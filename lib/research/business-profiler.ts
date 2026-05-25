@@ -13,6 +13,15 @@ import {
   type SubIndustryOverlay,
 } from "./industry-playbooks";
 import { extractSignals } from "./signal-extractor";
+import { normalizeImageUrl } from "@/lib/media/image-curation";
+import {
+  generateHeroEyebrow,
+  generateHeroHighlight,
+  generateMarqueeItems,
+  generateOfferHook,
+  generateStats,
+  type CopyContext,
+} from "@/lib/generation/copy-engine";
 
 interface TemplateVars {
   name: string;
@@ -223,20 +232,30 @@ export function buildBusinessProfile(
     ...(overlay?.sectionHeadlines || {}),
   };
 
-  const heroImage =
-    overlay?.heroImage ||
-    playbook.heroImage;
+  const heroImage = normalizeImageUrl(
+    overlay?.heroImage || playbook.heroImage
+  );
 
-  const galleryImages =
+  const galleryBase =
     overlay?.galleryImages?.length
       ? overlay.galleryImages
       : playbook.galleryImages;
+  const galleryImages = [...galleryBase, ...playbook.galleryImages]
+    .map(normalizeImageUrl)
+    .filter((url, i, arr) => arr.indexOf(url) === i)
+    .slice(0, 6);
 
   const keywords = [
     ...signals.categoryTerms,
     ...signals.valueKeywords,
     ...(overlay?.keywords || []).slice(0, 3),
   ].filter((k, i, arr) => arr.indexOf(k) === i).slice(0, 12);
+
+  const copyCtx: CopyContext = {
+    business,
+    niche,
+    city: business.city || "your area",
+  };
 
   return {
     niche,
@@ -263,6 +282,12 @@ export function buildBusinessProfile(
     galleryImages,
     researchSummary: buildResearchSummary(business, playbook, signals, overlay),
     reviewThemes: signals.reviewThemes,
+    generatedBy: "template",
+    heroEyebrow: generateHeroEyebrow(copyCtx),
+    heroHighlight: generateHeroHighlight(headline),
+    offerHook: generateOfferHook(copyCtx),
+    stats: generateStats(copyCtx),
+    marqueeItems: generateMarqueeItems(copyCtx),
   };
 }
 

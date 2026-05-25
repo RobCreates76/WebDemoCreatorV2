@@ -61,7 +61,7 @@ export async function buildExportZip(site: SiteModel): Promise<Blob> {
 
   folder.file("index.html", renderSiteHtml(siteForExport, { editMode: false }));
   folder.file("css/styles.css", renderSiteCss(siteForExport));
-  folder.file("js/main.js", renderSiteJs());
+  folder.file("js/main.js", renderSiteJs(siteForExport));
 
   folder.file(
     "README.txt",
