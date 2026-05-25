@@ -1,0 +1,8 @@
+{
+  "niche": "professional-services",
+  "aesthetic": "Restrained serif + sans, credibility-first",
+  "reference": "Linear / Stripe elegance",
+  "displayFont": "Instrument Serif",
+  "bodyFont": "Inter",
+  "sections": ["header", "hero", "social-proof", "services", "why-us", "testimonials", "faq", "contact", "footer"]
+}

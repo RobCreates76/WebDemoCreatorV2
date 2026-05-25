@@ -1,0 +1,8 @@
+{
+  "niche": "restaurant",
+  "aesthetic": "Warm editorial, full-bleed food photography",
+  "reference": "Airbnb / Starbucks warmth",
+  "displayFont": "Fraunces",
+  "bodyFont": "DM Sans",
+  "sections": ["header", "hero", "social-proof", "services", "gallery", "testimonials", "faq", "contact", "footer"]
+}

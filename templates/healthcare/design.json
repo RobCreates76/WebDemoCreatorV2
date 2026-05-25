@@ -1,0 +1,8 @@
+{
+  "niche": "healthcare",
+  "aesthetic": "Clean, calming, accessible",
+  "reference": "Cal.com clarity",
+  "displayFont": "Playfair Display",
+  "bodyFont": "Source Sans 3",
+  "sections": ["header", "hero", "social-proof", "services", "why-us", "testimonials", "faq", "contact", "footer"]
+}

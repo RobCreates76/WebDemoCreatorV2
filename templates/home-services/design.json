@@ -1,0 +1,8 @@
+{
+  "niche": "home-services",
+  "aesthetic": "Bold trust, high-contrast CTAs",
+  "reference": "Uber directness",
+  "displayFont": "Instrument Serif",
+  "bodyFont": "DM Sans",
+  "sections": ["header", "hero", "social-proof", "services", "why-us", "gallery", "testimonials", "faq", "contact", "footer"]
+}

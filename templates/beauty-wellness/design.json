@@ -1,0 +1,8 @@
+{
+  "niche": "beauty-wellness",
+  "aesthetic": "Soft surfaces, aspirational imagery",
+  "reference": "Notion softness",
+  "displayFont": "Cormorant Garamond",
+  "bodyFont": "Outfit",
+  "sections": ["header", "hero", "social-proof", "services", "gallery", "testimonials", "faq", "contact", "footer"]
+}

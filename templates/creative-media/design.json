@@ -1,0 +1,8 @@
+{
+  "niche": "creative-media",
+  "aesthetic": "Cinematic, bold typography, portfolio-forward",
+  "reference": "Runway / production studio energy",
+  "displayFont": "Syne",
+  "bodyFont": "Inter",
+  "sections": ["header", "hero", "social-proof", "services", "gallery", "why-us", "testimonials", "faq", "contact", "footer"]
+}

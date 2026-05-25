@@ -1,0 +1,8 @@
+{
+  "niche": "retail-local",
+  "aesthetic": "Product-forward, strong grid",
+  "reference": "Nike / Shopify energy",
+  "displayFont": "Bebas Neue",
+  "bodyFont": "Work Sans",
+  "sections": ["header", "hero", "social-proof", "services", "gallery", "testimonials", "contact", "footer"]
+}
