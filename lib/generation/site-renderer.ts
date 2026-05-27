@@ -104,11 +104,8 @@ export function renderSiteHtml(
   site: SiteModel,
   options: { editMode?: boolean; inlineStyles?: boolean } = {}
 ): string {
-  const resolvedSite =
-    site.renderTier === "premium" ? site : { ...site, renderTier: "premium" as const };
-
-  if (resolvedSite.renderTier === "premium") {
-    return renderPremiumSiteHtml(resolvedSite, options);
+  if (site.renderTier === "premium") {
+    return renderPremiumSiteHtml(site, options);
   }
 
   const editMode = options.editMode ?? false;
@@ -327,7 +324,7 @@ export function renderSiteHtml(
     ${baseCss}
   </style>
 </head>
-<body>
+<body class="template-site">
   ${sections.join("\n")}
   <script>${MAIN_JS}</script>
 </body>
@@ -335,7 +332,7 @@ export function renderSiteHtml(
 }
 
 export function renderSiteCss(site: SiteModel): string {
-  const tier = site.renderTier ?? "premium";
+  const tier = site.renderTier ?? "standard";
   if (tier === "premium") {
     return renderPremiumSiteCss(site);
   }
@@ -344,7 +341,7 @@ export function renderSiteCss(site: SiteModel): string {
 }
 
 export function renderSiteJs(site?: SiteModel): string {
-  const tier = site?.renderTier ?? "premium";
+  const tier = site?.renderTier ?? "standard";
   if (tier === "premium") {
     return renderPremiumSiteJs();
   }

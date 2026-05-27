@@ -22,6 +22,7 @@ import {
   generateStats,
   type CopyContext,
 } from "@/lib/generation/copy-engine";
+import { loadNicheDesignConfig } from "@/lib/generation/frontend-design";
 
 interface TemplateVars {
   name: string;
@@ -257,6 +258,8 @@ export function buildBusinessProfile(
     city: business.city || "your area",
   };
 
+  const designConfig = loadNicheDesignConfig(niche);
+
   return {
     niche,
     industryLabel: overlay
@@ -278,6 +281,8 @@ export function buildBusinessProfile(
     },
     trustBadges: playbook.trustBadges,
     sectionHeadlines,
+    sectionLeads: designConfig.sectionLeads,
+    conversionBand: designConfig.conversionBand,
     heroImage,
     galleryImages,
     researchSummary: buildResearchSummary(business, playbook, signals, overlay),

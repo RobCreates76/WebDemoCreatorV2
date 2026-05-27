@@ -98,6 +98,32 @@ export function ResearchPanel() {
                   </div>
                 </div>
 
+                {buildMode === "agent" && profile.researchMode && (
+                  <div className="flex flex-wrap gap-1.5">
+                    <Badge variant={profile.researchMode === "business-specific" ? "default" : "secondary"}>
+                      {profile.researchMode === "business-specific"
+                        ? "Business-specific research"
+                        : "Niche conversion research"}
+                    </Badge>
+                    {profile.dataRichness && (
+                      <Badge variant="outline">
+                        Data: {profile.dataRichness}
+                      </Badge>
+                    )}
+                    {profile.webResearchSource && profile.webResearchSource !== "none" && (
+                      <Badge variant="outline">
+                        Web: {profile.webResearchSource}
+                      </Badge>
+                    )}
+                  </div>
+                )}
+
+                {buildMode === "agent" && profile.researchMode === "niche-fallback" && (
+                  <p className="text-xs text-muted-foreground">
+                    Limited business data — agent researched what&apos;s converting in this niche right now to build the demo.
+                  </p>
+                )}
+
                 {buildMode === "agent" && profile.nicheReasoning && (
                   <div className="flex items-start gap-2">
                     <Target className="h-4 w-4 shrink-0 text-primary mt-0.5" />

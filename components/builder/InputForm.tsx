@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useBuilderStore } from "@/lib/store/builder-store";
 import { ALL_NICHES, NICHE_LABELS } from "@/lib/generation/niche-detector";
 import type { NicheType } from "@/lib/models/site-model";
@@ -21,6 +21,7 @@ export function InputForm() {
     nicheOverride,
     buildMode,
     agentAvailable,
+    agentStatusLoaded,
     manualControl,
     isLoading,
     setMapsUrl,
@@ -38,6 +39,27 @@ export function InputForm() {
     checkAgentStatus();
   }, [checkAgentStatus]);
 
+  const [agentElapsedSec, setAgentElapsedSec] = useState(0);
+
+  useEffect(() => {
+    if (!isLoading || buildMode !== "agent") {
+      setAgentElapsedSec(0);
+      return;
+    }
+    const started = Date.now();
+    const timer = setInterval(() => {
+      setAgentElapsedSec(Math.floor((Date.now() - started) / 1000));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [isLoading, buildMode]);
+
+  const agentLoadingHint =
+    agentElapsedSec < 15
+      ? "Scraping Google Maps & running web research..."
+      : agentElapsedSec < 90
+        ? "AI analyzing niche strategy..."
+        : "AI writing conversion copy — usually 2–4 min total";
+
   const buttonLabel =
     buildMode === "agent" ? "Agent Research & Build" : "Research & Build Demo";
 
@@ -51,6 +73,7 @@ export function InputForm() {
           value={buildMode}
           onChange={setBuildMode}
           agentAvailable={agentAvailable}
+          agentStatusLoaded={agentStatusLoaded}
           onOpenSettings={openAgentSettings}
         />
 
@@ -136,6 +159,13 @@ export function InputForm() {
             </>
           )}
         </Button>
+
+        {isLoading && buildMode === "agent" && (
+          <p className="text-xs text-muted-foreground text-center">
+            {agentLoadingHint}
+            {agentElapsedSec > 0 ? ` (${agentElapsedSec}s)` : ""}
+          </p>
+        )}
       </CardContent>
     </Card>
   );

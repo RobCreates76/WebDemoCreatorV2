@@ -118,6 +118,19 @@ export interface BusinessProfile {
     faq: string;
     contact: string;
   };
+  sectionLeads?: {
+    services: string;
+    whyUs: string;
+    gallery: string;
+    testimonials: string;
+    faq: string;
+    contact: string;
+  };
+  conversionBand?: {
+    headline: string;
+    subheadline: string;
+    reassurance: string;
+  };
   heroImage: string;
   galleryImages: string[];
   researchSummary: string;
@@ -135,6 +148,12 @@ export interface BusinessProfile {
   offerHook?: string;
   stats?: { value: string; label: string }[];
   marqueeItems?: string[];
+  /** Agent web research metadata */
+  researchMode?: "business-specific" | "niche-fallback";
+  dataRichness?: "rich" | "moderate" | "sparse";
+  webResearchSource?: "exa" | "duckduckgo" | "none";
+  webResearchQueries?: string[];
+  visualDesign?: AgentVisualDesign;
 }
 
 export interface ResearchData {
@@ -226,12 +245,40 @@ export interface SiteSection {
 
 export type RenderTier = "standard" | "premium";
 
+export interface AgentVisualDesign {
+  heroLayout: "cinematic" | "split" | "editorial";
+  theme: "light" | "dark" | "warm";
+  displayFont: string;
+  bodyFont: string;
+  primaryColor: string;
+  accentColor: string;
+  backgroundColor: string;
+  surfaceColor: string;
+  imageKeywords: string[];
+  imageMood: string;
+}
+
 export interface PremiumFeatures {
   heroEyebrow?: string;
   heroHighlight?: string;
   offerHook?: string;
   stats: { value: string; label: string }[];
   marqueeItems: string[];
+  sectionLeads?: {
+    services: string;
+    whyUs: string;
+    gallery: string;
+    testimonials: string;
+    faq: string;
+    contact: string;
+  };
+  conversionBand?: {
+    headline: string;
+    subheadline: string;
+    reassurance: string;
+    ctaLabel: string;
+    ctaHref: string;
+  };
 }
 
 export interface SiteModel {
@@ -239,7 +286,9 @@ export interface SiteModel {
   slug: string;
   businessName: string;
   niche: NicheType;
+  buildMode?: BuildMode;
   renderTier?: RenderTier;
+  visualDesign?: AgentVisualDesign;
   premium?: PremiumFeatures;
   tokens: DesignTokens;
   meta: {

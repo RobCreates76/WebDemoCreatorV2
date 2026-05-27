@@ -415,3 +415,70 @@ a { color: inherit; text-decoration: none; }
 
 [data-editable] { cursor: text; }
 [data-editable-image] { cursor: pointer; }
+
+/* Template mode — intentionally basic quick-demo look */
+body.template-site {
+  font-size: 15px;
+}
+
+body.template-site .hero {
+  min-height: 65vh;
+}
+
+body.template-site .hero h1 {
+  font-size: clamp(1.75rem, 4.5vw, 2.75rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+body.template-site .hero p {
+  font-size: 1rem;
+  opacity: 0.85;
+}
+
+body.template-site .btn {
+  padding: 12px 22px;
+  min-height: 44px;
+  font-size: 14px;
+  border-radius: 6px;
+}
+
+body.template-site .btn::after { display: none; }
+
+body.template-site .service-card,
+body.template-site .testimonial-card {
+  border-radius: 8px;
+  box-shadow: none;
+}
+
+body.template-site .service-card:hover {
+  transform: none;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+}
+
+body.template-site .section {
+  padding: 56px 0;
+}
+
+body.template-site .section-title {
+  font-size: clamp(1.5rem, 3vw, 2rem);
+}
+
+body.template-site .site-header {
+  backdrop-filter: blur(8px);
+  background: #fff;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+body.template-site .logo {
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+body.template-site .contact-section {
+  background: var(--color-primary);
+}
+
+body.template-site .gallery-grid img {
+  border-radius: 8px;
+}

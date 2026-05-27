@@ -9,6 +9,7 @@ interface BuildModeToggleProps {
   value: BuildMode;
   onChange: (mode: BuildMode) => void;
   agentAvailable: boolean;
+  agentStatusLoaded: boolean;
   onOpenSettings: () => void;
 }
 
@@ -16,6 +17,7 @@ export function BuildModeToggle({
   value,
   onChange,
   agentAvailable,
+  agentStatusLoaded,
   onOpenSettings,
 }: BuildModeToggleProps) {
   return (
@@ -35,7 +37,7 @@ export function BuildModeToggle({
           <LayoutTemplate className="h-4 w-4 text-muted-foreground pointer-events-none" />
           <span className="text-sm font-medium pointer-events-none">Template</span>
           <span className="text-xs text-muted-foreground leading-snug pointer-events-none">
-            Playbooks + scraped signals. Fast, no API key needed.
+            Playbook templates + scraped data. Clean and fast — no API key.
           </span>
         </button>
 
@@ -52,12 +54,22 @@ export function BuildModeToggle({
           <Sparkles className="h-4 w-4 text-muted-foreground pointer-events-none" />
           <span className="text-sm font-medium pointer-events-none">AI Agent</span>
           <span className="text-xs text-muted-foreground leading-snug pointer-events-none">
-            Premium design + conversion copy powered by your AI model. Takes ~1–2 min.
+            Deep research, premium design, animations, and conversion copy. Takes 1–5 min.
           </span>
         </button>
       </div>
 
-      {value === "agent" && !agentAvailable && (
+      {value === "agent" && agentStatusLoaded && agentAvailable && (
+        <p className="text-xs text-emerald-600 dark:text-emerald-400">
+          AI agent configured — live web research + premium site build (1–5 minutes).
+        </p>
+      )}
+
+      {value === "agent" && !agentStatusLoaded && (
+        <p className="text-xs text-muted-foreground">Checking agent configuration...</p>
+      )}
+
+      {value === "agent" && agentStatusLoaded && !agentAvailable && (
         <div className="flex flex-col gap-2">
           <p className="text-xs text-amber-600 dark:text-amber-400">
             Configure your AI provider API key and model in Agent Settings.

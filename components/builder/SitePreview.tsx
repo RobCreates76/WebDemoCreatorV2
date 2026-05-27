@@ -89,7 +89,18 @@ export function SitePreview() {
     <Card className="h-full flex flex-col">
       <CardHeader className="pb-2 shrink-0">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-base">Site Preview</CardTitle>
+          <div className="flex items-center gap-2">
+            <CardTitle className="text-base">Site Preview</CardTitle>
+            {site.renderTier === "premium" ? (
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-emerald-600 bg-emerald-500/10 px-2 py-0.5 rounded-full">
+                AI Premium
+              </span>
+            ) : (
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
+                Template
+              </span>
+            )}
+          </div>
           {manualControl && (
             <span className="text-xs text-amber-400 bg-amber-400/10 px-2 py-1 rounded">
               Click text/images to edit

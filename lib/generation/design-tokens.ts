@@ -1,4 +1,5 @@
 import type { DesignTokens, NicheType } from "@/lib/models/site-model";
+import { loadNicheDesignConfig } from "@/lib/generation/frontend-design";
 
 export interface NicheTokenPreset {
   primary: string;
@@ -109,8 +110,11 @@ export function buildDesignTokens(
   premium = false
 ): DesignTokens {
   const preset = NICHE_PRESETS[niche];
+  const designConfig = loadNicheDesignConfig(niche);
   let primary = preset.primary;
   let accent = preset.accent;
+  let displayFont = designConfig.displayFont ?? preset.displayFont;
+  let bodyFont = designConfig.bodyFont ?? preset.bodyFont;
 
   if (brandColors && brandColors.length > 0) {
     const valid = brandColors.filter(
@@ -126,6 +130,8 @@ export function buildDesignTokens(
     ...preset,
     primary,
     accent,
+    displayFont,
+    bodyFont,
     radius: premium ? "1rem" : "0.5rem",
     niche,
   };

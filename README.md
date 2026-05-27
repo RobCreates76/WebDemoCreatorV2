@@ -33,6 +33,7 @@ npm run dev
 |---------|-----|
 | `Playwright browser not installed` | Run `npx playwright install chromium` |
 | `Cannot find module .../parse5/...` (external drive) | Run `npm run fix:perms` then restart the dev server |
+| `Cannot find module '../lightningcss.win32-x64-msvc.node'` | Run `npm install` (postinstall installs Windows/macOS/Linux native CSS binaries) |
 | Generic `Server error (500)` | Stop all dev servers, run `npm run dev:clean`, check the terminal for the real error |
 
 Open [http://localhost:3000](http://localhost:3000)

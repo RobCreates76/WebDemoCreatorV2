@@ -16,6 +16,7 @@ interface BuilderState {
   nicheOverride: NicheType | "";
   buildMode: BuildMode;
   agentAvailable: boolean;
+  agentStatusLoaded: boolean;
   manualControl: boolean;
   isLoading: boolean;
   error: string | null;
@@ -74,6 +75,7 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
   nicheOverride: "",
   buildMode: "template",
   agentAvailable: false,
+  agentStatusLoaded: false,
   manualControl: false,
   isLoading: false,
   error: null,
@@ -104,10 +106,15 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
   checkAgentStatus: async () => {
     try {
       const res = await fetch("/api/agent/status");
-      const data = await parseApiResponse<{ available: boolean }>(res);
-      set({ agentAvailable: data.available === true });
+      const data = await parseApiResponse<{ configured?: boolean; available?: boolean }>(
+        res
+      );
+      set({
+        agentAvailable: data.configured === true,
+        agentStatusLoaded: true,
+      });
     } catch {
-      set({ agentAvailable: false });
+      set({ agentAvailable: false, agentStatusLoaded: true });
     }
   },
   setManualControl: (enabled) => set({ manualControl: enabled }),
@@ -123,18 +130,30 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
   },
 
   runResearch: async () => {
-    const { mapsUrl, websiteUrl, socialUrls, nicheOverride, buildMode, agentAvailable } = get();
+    const {
+      mapsUrl,
+      websiteUrl,
+      socialUrls,
+      nicheOverride,
+      buildMode,
+      agentStatusLoaded,
+    } = get();
     if (!mapsUrl.trim()) {
       set({ error: "Please paste a Google Maps business link" });
       return;
     }
 
-    if (buildMode === "agent" && !agentAvailable) {
-      set({
-        error:
-          "AI Agent mode needs credentials. Open Agent Settings (top right) to add your Ollama Cloud API key.",
-      });
-      return;
+    if (buildMode === "agent") {
+      if (!agentStatusLoaded) {
+        await get().checkAgentStatus();
+      }
+      if (!get().agentAvailable) {
+        set({
+          error:
+            "AI Agent mode needs credentials. Open Agent Settings (top right) to add your Ollama Cloud API key.",
+        });
+        return;
+      }
     }
 
     set({
@@ -328,6 +347,7 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
       nicheOverride: "",
       buildMode: "template",
       agentAvailable: false,
+      agentStatusLoaded: false,
       manualControl: false,
       isLoading: false,
       error: null,

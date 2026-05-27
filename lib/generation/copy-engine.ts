@@ -10,23 +10,23 @@ interface CopyContext {
 const PRIMARY_CTAS: Record<NicheType, string> = {
   "home-services": "Claim Your Free Estimate",
   restaurant: "Reserve Your Table Now",
-  "professional-services": "Book Free Consultation",
-  healthcare: "Get Priority Appointment",
-  "beauty-wellness": "Book Your Transformation",
-  "retail-local": "Shop the Collection",
-  "creative-media": "Start Your Project Today",
-  general: "Get Started Now",
+  "professional-services": "Book Your Free Strategy Call",
+  healthcare: "Book Your Appointment",
+  "beauty-wellness": "Book Your Session",
+  "retail-local": "Visit Us Today",
+  "creative-media": "Book a Discovery Call",
+  general: "Book a Free Call",
 };
 
 const SECONDARY_CTAS: Record<NicheType, string> = {
   "home-services": "Call Now — Same-Day Available",
-  restaurant: "See What's Cooking",
-  "professional-services": "Talk to an Expert",
+  restaurant: "View Menu & Hours",
+  "professional-services": "Call to Talk Now",
   healthcare: "Call for Same-Week Care",
   "beauty-wellness": "View Services & Pricing",
-  "retail-local": "Visit Our Store",
-  "creative-media": "Watch Our Reel",
-  general: "See Why We're #1",
+  "retail-local": "Get Directions",
+  "creative-media": "See Our Work",
+  general: "Call Us Directly",
 };
 
 const HEADLINE_TEMPLATES: Record<NicheType, string[]> = {

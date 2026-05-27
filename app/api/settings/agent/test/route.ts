@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
 
     if (!provider || !model) {
       return NextResponse.json(
-        { available: false, provider: null, model: null, message: "Provider and model required" },
+        { available: false, configured: false, provider: null, model: null, message: "Provider and model required" },
         { status: 400 }
       );
     }
@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     const message = error instanceof Error ? error.message : "Connection test failed";
     return NextResponse.json(
-      { available: false, provider: null, model: null, message },
+      { configured: false, available: false, provider: null, model: null, message },
       { status: 500 }
     );
   }

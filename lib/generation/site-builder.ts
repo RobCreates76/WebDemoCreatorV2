@@ -1,6 +1,14 @@
 import { randomUUID } from "crypto";
 import type { BusinessProfile, ResearchData, SiteModel } from "@/lib/models/site-model";
-import { buildPremiumDesignTokens } from "./design-tokens";
+import { buildDesignTokens, buildPremiumDesignTokens } from "./design-tokens";
+import { visualDesignToTokens } from "./agent-visual-design";
+import {
+  getConversionBand,
+  getSectionLeads,
+  loadNicheDesignConfig,
+  resolveCtaHref,
+  resolveSecondaryCtaHref,
+} from "./frontend-design";
 import { detectNiche } from "./niche-detector";
 import {
   generateBadges,
@@ -23,8 +31,16 @@ export function buildSiteModel(research: ResearchData): SiteModel {
     (isAgent && profile.niche) ||
     research.niche ||
     detectNiche(research.business.category, research.business.name);
-  const brandColors = research.website?.colors;
-  const tokens = buildPremiumDesignTokens(niche, brandColors);
+  const brandColors = isAgent ? research.website?.colors : undefined;
+  const tokens =
+    isAgent && profile.visualDesign
+      ? visualDesignToTokens(profile.visualDesign, niche)
+      : isAgent
+        ? buildPremiumDesignTokens(niche, brandColors)
+        : (() => {
+            const t = buildDesignTokens(niche, undefined, false);
+            return { ...t, displayFont: "Inter", bodyFont: "Inter", radius: "0.375rem" };
+          })();
 
   const ctx: CopyContext = {
     business: research.business,
@@ -36,7 +52,29 @@ export function buildSiteModel(research: ResearchData): SiteModel {
     research.business.phone ||
     research.website?.phoneNumbers[0] ||
     "(555) 000-0000";
-  const phoneHref = `tel:${phone.replace(/\D/g, "")}`;
+
+  const designConfig = loadNicheDesignConfig(niche);
+  const sectionLeads = getSectionLeads(niche, profile);
+  const primaryHref = resolveCtaHref(profile.ctas.primary, {
+    intent: designConfig.ctaIntent,
+    phone,
+    buyerType: profile.buyerType,
+  });
+  const secondaryHref = resolveSecondaryCtaHref(
+    profile.ctas.secondary,
+    phone,
+    primaryHref
+  );
+  const conversionBand = getConversionBand(
+    niche,
+    profile,
+    research.business.name
+  );
+  const conversionCtaHref = resolveCtaHref(conversionBand.ctaLabel, {
+    intent: designConfig.ctaIntent,
+    phone,
+    buyerType: profile.buyerType,
+  });
 
   const curated = curateSiteImages(research.business, research.website, {
     businessName: research.business.name,
@@ -72,13 +110,17 @@ export function buildSiteModel(research: ResearchData): SiteModel {
 
   const slug = slugify(research.business.name);
 
+  const renderTier = isAgent ? "premium" : "standard";
+
   return {
     id: randomUUID(),
     slug,
     businessName: research.business.name,
     niche,
-    renderTier: "premium",
-    premium: {
+    buildMode: research.buildMode,
+    renderTier,
+    visualDesign: isAgent ? profile.visualDesign : undefined,
+    premium: isAgent ? {
       heroEyebrow:
         profile.heroEyebrow ||
         `${research.business.city}'s Trusted ${profile.industryLabel.split("·")[0].trim()}`,
@@ -96,7 +138,15 @@ export function buildSiteModel(research: ResearchData): SiteModel {
       marqueeItems: profile.marqueeItems?.length
         ? profile.marqueeItems
         : profile.trustBadges,
-    },
+      sectionLeads,
+      conversionBand: {
+        headline: conversionBand.headline,
+        subheadline: conversionBand.subheadline,
+        reassurance: conversionBand.reassurance,
+        ctaLabel: conversionBand.ctaLabel,
+        ctaHref: conversionCtaHref,
+      },
+    } : undefined,
     tokens,
     meta: {
       title: isAgent && profile.metaTitle
@@ -111,7 +161,7 @@ export function buildSiteModel(research: ResearchData): SiteModel {
       phone,
       cta: {
         label: profile.ctas.primary,
-        href: phoneHref,
+        href: primaryHref,
         variant: "primary",
       },
     },
@@ -121,12 +171,12 @@ export function buildSiteModel(research: ResearchData): SiteModel {
       image: heroImage,
       primaryCta: {
         label: profile.ctas.primary,
-        href: phoneHref,
+        href: primaryHref,
         variant: "primary",
       },
       secondaryCta: {
         label: profile.ctas.secondary,
-        href: "#contact",
+        href: secondaryHref,
         variant: "secondary",
       },
     },
@@ -167,7 +217,7 @@ export function buildSiteModel(research: ResearchData): SiteModel {
       hours: research.business.hours,
       cta: {
         label: profile.ctas.primary,
-        href: phoneHref,
+        href: primaryHref,
         variant: "primary",
       },
     },

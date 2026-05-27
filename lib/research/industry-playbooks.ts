@@ -60,8 +60,8 @@ export const INDUSTRY_PLAYBOOKS: Record<NicheType, IndustryPlaybook> = {
     audience: "brands, agencies, and businesses",
     buyerType: "b2b",
     tone: "premium",
-    primaryCta: "Start Your Project Today",
-    secondaryCta: "Watch Our Reel",
+    primaryCta: "Book a Discovery Call",
+    secondaryCta: "See Our Work",
     headlineFormulas: [
       "Video That Actually Converts — {city}'s {category} Pros",
       "Stop Posting Content That Gets Ignored — {name} Creates What Works",
@@ -223,8 +223,8 @@ export const INDUSTRY_PLAYBOOKS: Record<NicheType, IndustryPlaybook> = {
     audience: "clients and decision-makers",
     buyerType: "mixed",
     tone: "professional",
-    primaryCta: "Book Free Consultation",
-    secondaryCta: "Talk to an Expert",
+    primaryCta: "Book Your Free Strategy Call",
+    secondaryCta: "Call to Talk Now",
     headlineFormulas: [
       "When It Matters Most, {city} Trusts {name}",
       "Don't Gamble on {category} — Get {city}'s Proven Expert",

@@ -1,10 +1,18 @@
 import "server-only";
 
+import {
+  AGENT_AI_TIMEOUT_MS,
+  agentTimeoutMessage,
+  isAbortTimeoutError,
+} from "@/lib/ai/agent-timeouts";
 import { getEffectiveAgentSettings } from "@/lib/config/agent-settings-store";
 
 export type AiProviderName = "ollama-cloud" | "ollama-local" | "openai" | "anthropic";
 
 export interface AgentStatus {
+  /** True when credentials are saved and agent mode can be attempted */
+  configured: boolean;
+  /** True when the provider passed a connectivity check (or is non-Ollama) */
   available: boolean;
   provider: AiProviderName | null;
   model: string | null;
@@ -134,6 +142,14 @@ function resolveProvider(): ResolvedProvider | null {
   return null;
 }
 
+let ollamaReachabilityCache: {
+  key: string;
+  at: number;
+  ok: boolean;
+} | null = null;
+
+const OLLAMA_PING_TTL_MS = 30_000;
+
 function ollamaHeaders(apiKey: string, requiresAuth: boolean): HeadersInit {
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
@@ -254,6 +270,7 @@ export async function getAgentStatus(): Promise<AgentStatus> {
   const resolved = resolveProvider();
   if (!resolved) {
     return {
+      configured: false,
       available: false,
       provider: null,
       model: null,
@@ -262,12 +279,15 @@ export async function getAgentStatus(): Promise<AgentStatus> {
     };
   }
 
+  const configured = isAgentConfigured();
+
   if (
     resolved.provider === "ollama-cloud" ||
     resolved.provider === "ollama-local"
   ) {
     if (resolved.requiresAuth && !resolved.apiKey) {
       return {
+        configured: false,
         available: false,
         provider: resolved.provider,
         model: resolved.model,
@@ -286,19 +306,21 @@ export async function getAgentStatus(): Promise<AgentStatus> {
       resolved.provider === "ollama-cloud" ? "Ollama Cloud" : "Ollama Local";
 
     return {
-      available: reachable,
+      configured: true,
+      available: configured,
       provider: resolved.provider,
       model: resolved.model,
       message: reachable
         ? `${label} ready — ${resolved.model}`
         : resolved.provider === "ollama-cloud"
-          ? "Cannot reach Ollama Cloud. Check OLLAMA_API_KEY and model name."
+          ? `${label} configured — ${resolved.model} (connectivity check failed; builds may still work)`
           : `Ollama local not reachable at ${resolved.baseUrl}. Run: ollama serve`,
     };
   }
 
   return {
-    available: true,
+    configured: true,
+    available: configured,
     provider: resolved.provider,
     model: resolved.model,
     message: `Agent ready (${resolved.provider}, ${resolved.model})`,
@@ -373,6 +395,7 @@ export async function probeAgentConfig(input: {
 
   if (resolved.requiresAuth && !resolved.apiKey) {
     return {
+      configured: false,
       available: false,
       provider: resolved.provider,
       model: resolved.model,
@@ -392,7 +415,8 @@ export async function probeAgentConfig(input: {
     const label =
       resolved.provider === "ollama-cloud" ? "Ollama Cloud" : "Ollama Local";
     return {
-      available: reachable,
+      configured: true,
+      available: true,
       provider: resolved.provider,
       model: resolved.model,
       message: reachable
@@ -402,11 +426,55 @@ export async function probeAgentConfig(input: {
   }
 
   return {
+    configured: true,
     available: true,
     provider: resolved.provider,
     model: resolved.model,
     message: `Configuration looks valid (${resolved.provider})`,
   };
+}
+
+/** Pull a JSON object/array out of model text (handles markdown fences and preamble). */
+export function extractJsonFromModelText(raw: string): string {
+  let text = raw.trim();
+  text = text.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/i, "").trim();
+
+  const fenceMatch = text.match(/```(?:json)?\s*([\s\S]*?)```/i);
+  if (fenceMatch?.[1]) {
+    text = fenceMatch[1].trim();
+  }
+
+  if (text.startsWith("{") || text.startsWith("[")) {
+    return text;
+  }
+
+  const startObj = text.indexOf("{");
+  const endObj = text.lastIndexOf("}");
+  if (startObj !== -1 && endObj > startObj) {
+    return text.slice(startObj, endObj + 1);
+  }
+
+  const startArr = text.indexOf("[");
+  const endArr = text.lastIndexOf("]");
+  if (startArr !== -1 && endArr > startArr) {
+    return text.slice(startArr, endArr + 1);
+  }
+
+  return text;
+}
+
+function parseAgentJson<T>(raw: string): T {
+  const candidates = [raw, extractJsonFromModelText(raw)];
+  for (const candidate of candidates) {
+    try {
+      return JSON.parse(candidate) as T;
+    } catch {
+      /* try next */
+    }
+  }
+  throw new Error(
+    "AI agent returned invalid JSON. Try a cloud model with strong structured output."
+  );
 }
 
 async function callOllamaChat(
@@ -417,31 +485,38 @@ async function callOllamaChat(
   system: string,
   user: string
 ): Promise<string> {
-  const res = await fetch(`${baseUrl}/api/chat`, {
-    method: "POST",
-    headers: ollamaHeaders(apiKey, requiresAuth),
-    body: JSON.stringify({
-      model,
-      messages: [
-        { role: "system", content: system },
-        { role: "user", content: user },
-      ],
-      format: "json",
-      stream: false,
-      options: { temperature: 0.7 },
-    }),
-    signal: AbortSignal.timeout(180000),
-  });
+  try {
+    const res = await fetch(`${baseUrl}/api/chat`, {
+      method: "POST",
+      headers: ollamaHeaders(apiKey, requiresAuth),
+      body: JSON.stringify({
+        model,
+        messages: [
+          { role: "system", content: system },
+          { role: "user", content: user },
+        ],
+        format: "json",
+        stream: false,
+        options: { temperature: 0.7 },
+      }),
+      signal: AbortSignal.timeout(AGENT_AI_TIMEOUT_MS),
+    });
 
-  if (!res.ok) {
-    const err = await res.text();
-    throw new Error(`Ollama error (${res.status}): ${err.slice(0, 300)}`);
+    if (!res.ok) {
+      const err = await res.text();
+      throw new Error(`Ollama error (${res.status}): ${err.slice(0, 300)}`);
+    }
+
+    const data = (await res.json()) as { message?: { content?: string } };
+    const content = data.message?.content;
+    if (!content) throw new Error("Ollama returned empty response");
+    return extractJsonFromModelText(content);
+  } catch (error) {
+    if (isAbortTimeoutError(error)) {
+      throw new Error(agentTimeoutMessage(`AI model (${model})`));
+    }
+    throw error;
   }
-
-  const data = (await res.json()) as { message?: { content?: string } };
-  const content = data.message?.content;
-  if (!content) throw new Error("Ollama returned empty response");
-  return content.replace(/^```json\s*/i, "").replace(/```\s*$/i, "").trim();
 }
 
 async function callOpenAiCompatible(
@@ -455,35 +530,42 @@ async function callOpenAiCompatible(
     ? `${baseUrl}/chat/completions`
     : `${baseUrl}/v1/chat/completions`;
 
-  const res = await fetch(url, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      model,
-      temperature: 0.7,
-      response_format: { type: "json_object" },
-      messages: [
-        { role: "system", content: system },
-        { role: "user", content: user },
-      ],
-    }),
-    signal: AbortSignal.timeout(180000),
-  });
+  try {
+    const res = await fetch(url, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model,
+        temperature: 0.7,
+        response_format: { type: "json_object" },
+        messages: [
+          { role: "system", content: system },
+          { role: "user", content: user },
+        ],
+      }),
+      signal: AbortSignal.timeout(AGENT_AI_TIMEOUT_MS),
+    });
 
-  if (!res.ok) {
-    const err = await res.text();
-    throw new Error(`API error (${res.status}): ${err.slice(0, 300)}`);
+    if (!res.ok) {
+      const err = await res.text();
+      throw new Error(`API error (${res.status}): ${err.slice(0, 300)}`);
+    }
+
+    const data = (await res.json()) as {
+      choices?: { message?: { content?: string } }[];
+    };
+    const content = data.choices?.[0]?.message?.content;
+    if (!content) throw new Error("API returned empty response");
+    return extractJsonFromModelText(content);
+  } catch (error) {
+    if (isAbortTimeoutError(error)) {
+      throw new Error(agentTimeoutMessage(`AI model (${model})`));
+    }
+    throw error;
   }
-
-  const data = (await res.json()) as {
-    choices?: { message?: { content?: string } }[];
-  };
-  const content = data.choices?.[0]?.message?.content;
-  if (!content) throw new Error("API returned empty response");
-  return content;
 }
 
 async function callAnthropic(
@@ -492,33 +574,40 @@ async function callAnthropic(
   system: string,
   user: string
 ): Promise<string> {
-  const res = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: {
-      "x-api-key": apiKey,
-      "anthropic-version": "2023-06-01",
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      model,
-      max_tokens: 4096,
-      system: system + "\n\nRespond with valid JSON only — no markdown fences.",
-      messages: [{ role: "user", content: user }],
-    }),
-    signal: AbortSignal.timeout(180000),
-  });
+  try {
+    const res = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "x-api-key": apiKey,
+        "anthropic-version": "2023-06-01",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model,
+        max_tokens: 4096,
+        system: system + "\n\nRespond with valid JSON only — no markdown fences.",
+        messages: [{ role: "user", content: user }],
+      }),
+      signal: AbortSignal.timeout(AGENT_AI_TIMEOUT_MS),
+    });
 
-  if (!res.ok) {
-    const err = await res.text();
-    throw new Error(`Anthropic API error (${res.status}): ${err.slice(0, 300)}`);
+    if (!res.ok) {
+      const err = await res.text();
+      throw new Error(`Anthropic API error (${res.status}): ${err.slice(0, 300)}`);
+    }
+
+    const data = (await res.json()) as {
+      content?: { type: string; text?: string }[];
+    };
+    const text = data.content?.find((c) => c.type === "text")?.text;
+    if (!text) throw new Error("Anthropic returned empty response");
+    return extractJsonFromModelText(text);
+  } catch (error) {
+    if (isAbortTimeoutError(error)) {
+      throw new Error(agentTimeoutMessage(`AI model (${model})`));
+    }
+    throw error;
   }
-
-  const data = (await res.json()) as {
-    content?: { type: string; text?: string }[];
-  };
-  const text = data.content?.find((c) => c.type === "text")?.text;
-  if (!text) throw new Error("Anthropic returned empty response");
-  return text.replace(/^```json\s*/i, "").replace(/```\s*$/i, "").trim();
 }
 
 export async function generateAgentJson<T>(
@@ -542,11 +631,29 @@ export async function generateAgentJson<T>(
     resolved.provider === "ollama-cloud" ||
     resolved.provider === "ollama-local"
   ) {
-    const reachable = await pingOllama(
-      resolved.baseUrl,
-      resolved.apiKey,
-      resolved.requiresAuth
-    );
+    const cacheKey = `${resolved.provider}:${resolved.baseUrl}:${resolved.apiKey.slice(-6)}`;
+    const cached = ollamaReachabilityCache;
+    const cacheFresh =
+      cached &&
+      cached.key === cacheKey &&
+      Date.now() - cached.at < OLLAMA_PING_TTL_MS;
+
+    const reachable = cacheFresh
+      ? cached.ok
+      : await pingOllama(
+          resolved.baseUrl,
+          resolved.apiKey,
+          resolved.requiresAuth
+        );
+
+    if (!cacheFresh) {
+      ollamaReachabilityCache = {
+        key: cacheKey,
+        at: Date.now(),
+        ok: reachable,
+      };
+    }
+
     if (!reachable) {
       throw new Error(
         resolved.provider === "ollama-cloud"
@@ -556,16 +663,29 @@ export async function generateAgentJson<T>(
     }
   }
 
+  const jsonSystem =
+    systemPrompt +
+    "\n\nRespond with valid JSON only — no markdown fences, no commentary.";
+
   let raw: string;
   switch (resolved.provider) {
     case "ollama-cloud":
+      // Ollama Cloud: OpenAI-compatible endpoint gives cleaner structured output.
+      raw = await callOpenAiCompatible(
+        resolved.baseUrl,
+        resolved.apiKey,
+        resolved.model,
+        jsonSystem,
+        userPrompt
+      );
+      break;
     case "ollama-local":
       raw = await callOllamaChat(
         resolved.baseUrl,
         resolved.apiKey,
         resolved.requiresAuth,
         resolved.model,
-        systemPrompt,
+        jsonSystem,
         userPrompt
       );
       break;
@@ -588,11 +708,5 @@ export async function generateAgentJson<T>(
       break;
   }
 
-  try {
-    return JSON.parse(raw) as T;
-  } catch {
-    throw new Error(
-      "AI agent returned invalid JSON. Try a cloud model with strong structured output."
-    );
-  }
+  return parseAgentJson<T>(raw);
 }

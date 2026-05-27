@@ -10,6 +10,7 @@ function readTemplateCss(filename: string): string {
 
 let baseCssCache: string | undefined;
 let premiumCssCache: string | undefined;
+let agentCssCache: string | undefined;
 
 export function getBaseCss(): string {
   if (!baseCssCache) {
@@ -23,4 +24,11 @@ export function getPremiumCss(): string {
     premiumCssCache = readTemplateCss("premium.css");
   }
   return premiumCssCache;
+}
+
+export function getAgentCss(): string {
+  if (!agentCssCache) {
+    agentCssCache = readTemplateCss("agent.css");
+  }
+  return agentCssCache;
 }
